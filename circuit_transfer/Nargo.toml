@@ -1,0 +1,13 @@
+[package]
+name = "cashinviz_transfer"
+type = "bin"
+authors = []
+compiler_version = ">=0.31.0"
+
+# Shielded-transfer circuit for the ShieldedPool. Compiles to its own
+# verifier that gets wired via `ShieldedPool.setTransferVerifier()`.
+# The withdraw circuit lives in the parent project (../src/main.nr).
+# Keeping them as separate Noir projects so each emits its own
+# Solidity verifier (`bb write_solidity_verifier`).
+
+[dependencies]

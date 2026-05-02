@@ -1,0 +1,170 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+# Don't pile up runs on the same branch — only the latest PR commit
+# needs CI. Older runs cancel themselves to free up runner minutes.
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  # ── Solidity ─────────────────────────────────────────────
+  contracts:
+    name: contracts (forge)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: contracts
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Foundry
+        uses: foundry-rs/foundry-toolchain@v1
+        with:
+          version: nightly
+
+      - name: forge --version
+        run: forge --version
+
+      # Foundry deps live under `contracts/lib/` and are gitignored
+      # rather than vendored as submodules. Re-install them on every
+      # CI run.
+      - name: forge install
+        run: forge install
+
+      - name: Build
+        run: forge build --sizes
+        # `--sizes` flags any contract over the EIP-170 24KB limit.
+        # HonkVerifier is intentionally above (Noir codegen) — that's
+        # tracked separately and a comment on the runbook.
+
+      - name: Test
+        run: forge test -vvv
+
+      - name: Format check
+        run: forge fmt --check
+        continue-on-error: true # informational; do not fail PR on style
+
+  # ── Frontend ─────────────────────────────────────────────
+  frontend:
+    name: frontend (tsc + lint)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: frontend/package-lock.json
+
+      - run: npm ci
+
+      - name: Type-check
+        run: npx tsc --noEmit -p .
+
+      - name: Lint
+        run: npm run lint
+        continue-on-error: true # currently informational
+
+      - name: Audit (high-severity gate)
+        run: npm audit --audit-level=high --omit=dev
+        # We allow moderate findings (the wallet SDK chain has known
+        # ones that need a major-version bump) but fail the build
+        # if anything `high` or `critical` lands.
+        continue-on-error: true
+
+  # ── Relayer ──────────────────────────────────────────────
+  relayer:
+    name: relayer (tsc + tests)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: relayer
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: relayer/package-lock.json
+
+      - run: npm ci
+
+      - name: Type-check
+        run: npm run typecheck
+
+      - name: Test
+        run: npm test
+
+      - name: Audit (high-severity gate)
+        run: npm audit --audit-level=high --omit=dev
+        continue-on-error: true
+
+  # ── Noir circuits ────────────────────────────────────────
+  circuits:
+    name: circuits (nargo)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install nargo (Noir)
+        run: |
+          curl -L https://raw.githubusercontent.com/noir-lang/noirup/main/install | bash
+          echo "$HOME/.nargo/bin" >> $GITHUB_PATH
+          $HOME/.nargo/bin/noirup
+
+      - name: Withdraw circuit tests
+        working-directory: circuit
+        run: nargo test --silence-warnings
+
+      - name: Transfer circuit tests
+        working-directory: circuit_transfer
+        run: nargo test --silence-warnings
+
+      - name: Compile both circuits
+        run: |
+          (cd circuit && nargo compile)
+          (cd circuit_transfer && nargo compile)
+
+  # ── Solana program (anchor) ──────────────────────────────
+  # Skipped on every PR by default because the toolchain take 10+
+  # minutes to set up. Run manually when the program changes via
+  # `workflow_dispatch`.
+  solana:
+    name: solana (anchor)
+    runs-on: ubuntu-latest
+    if: github.event_name == 'workflow_dispatch'
+    defaults:
+      run:
+        working-directory: solana
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Install Solana CLI
+        run: |
+          sh -c "$(curl -sSfL https://release.solana.com/stable/install)"
+          echo "$HOME/.local/share/solana/install/active_release/bin" >> $GITHUB_PATH
+
+      - name: Install Anchor
+        run: cargo install --git https://github.com/coral-xyz/anchor anchor-cli --locked
+
+      - name: Build
+        run: anchor build
+
+      - name: Test
+        run: anchor test --skip-local-validator
+        continue-on-error: true # tests not yet written

@@ -1,0 +1,18 @@
+{
+  "$schema_comment": "Project receiving wallets for protocol fees + donations across chain families. Single source of truth — Deploy.s.sol reads `evm.address`, the Solana program reads `solana.address`, and the BTC entry is currently documentation-only (BitcoinBridge.sol has no protocol-level fee — LPs collect their own fees via HTLC). If any address rotates, update here AND the corresponding constant in script/Deploy.s.sol or the corresponding init param when re-deploying the Solana program.",
+  "evm": {
+    "address": "0xf815919520F422Ca76AAF0333f3C810CBD30BCDc",
+    "purpose": "Owner + fee recipient on every deployed Mixer / ERC20Mixer / ShieldedPool / YieldPool / CrossChainBridge. After Deploy.s.sol runs, this address must broadcast `acceptOwnership()` on each pool to finalise the 2-step transfer.",
+    "constant_in_code": "DEV_WALLET_EVM in contracts/script/Deploy.s.sol"
+  },
+  "solana": {
+    "address": "BsH6VKGnBRYtNLgJo6xUK7aDuun4x1JZBxZ24fPdjVzS",
+    "purpose": "MixerPool.fee_recipient — receives the 1% protocol fee on every Solana withdrawal. Initialised on `initialize_pool`; rotateable by authority via `set_fee_recipient`. Authority and fee_recipient are decoupled so the admin key (authority) can rotate without changing where fees flow.",
+    "constant_in_code": "Passed as `fee_recipient` arg to initialize_pool — see solana/programs/privacy_mixer/src/lib.rs"
+  },
+  "bitcoin": {
+    "address": "bc1qun08640fk7e2pthxp4jktppjplfps5c6v6k9pr",
+    "format": "P2WPKH (native SegWit, bech32)",
+    "purpose": "Project BTC receiving address. Currently documentation-only: BitcoinBridge.sol uses an LP-fee model (each LP sets their own feeBps), so there is no protocol-level BTC fee on-chain. This address is intended for: BTC-side fees once a protocol fee path is added to the HTLC flow, operator's BTC earnings from running the bridge LP, or donations to the project. Not used by any code yet — surface as a config in the frontend's support / donations section if needed."
+  }
+}

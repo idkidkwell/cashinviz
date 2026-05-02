@@ -1,0 +1,115 @@
+# ── Secrets ──────────────────────────────────────────────
+# Anything that could authorise transactions or impersonate the
+# project. NEVER commit these even by accident.
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+keystore*.json
+solana/*.json
+**/wallet-*.json
+**/keypair-*.json
+
+# Operator-private deploy artifacts. The `deployments/<chainId>.json`
+# files ARE meant to be committed (they document where the protocol
+# lives on each chain), but `broadcast/` carries raw tx data with
+# RPC URLs and timestamps from the deployer's machine.
+contracts/broadcast/
+
+# ── Node / npm / pnpm / yarn ─────────────────────────────
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+.pnpm-store/
+.yarn/
+.npmrc.local
+
+# Build output (regenerable)
+dist/
+build/
+.tsbuildinfo
+*.tsbuildinfo
+
+# ── Next.js ──────────────────────────────────────────────
+.next/
+out/
+.vercel/
+.turbo/
+next-env.d.ts
+
+# ── Foundry / Solidity ───────────────────────────────────
+contracts/cache/
+contracts/out/
+# Foundry deps are (re)installed via `forge install` rather than
+# committed. CI runs `forge install` before `forge build`. Keeping
+# the existing convention.
+contracts/lib/
+
+# ── Noir / Barretenberg ──────────────────────────────────
+# Compiled circuit artifacts + verification keys are regenerable
+# via `nargo compile` + `bb write_vk`. Reproducibility comes from
+# committing the source, not the binary outputs.
+circuit/target/
+circuit_transfer/target/
+**/*.acir
+
+# ── Anchor / Solana / Rust ───────────────────────────────
+solana/target/
+solana/.anchor/
+solana/test-ledger/
+solana/programs/*/target/
+target/
+
+# ── IDE / editor ─────────────────────────────────────────
+.vscode/
+.idea/
+*.swp
+*.swo
+*.iml
+.history/
+
+# ── Operating system noise ───────────────────────────────
+.DS_Store
+.AppleDouble
+.LSOverride
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# ── Test runner / coverage output ────────────────────────
+coverage/
+*.lcov
+.nyc_output/
+playwright-report/
+test-results/
+
+# ── Logs ─────────────────────────────────────────────────
+*.log
+logs/
+
+# ── Local-only scratch files ─────────────────────────────
+scratch/
+*.scratch.*
+TODO.local.md
+NOTES.local.md
+
+# ── Claude / Cursor / Aider session state ───────────────
+# Anything an AI tool writes locally (workspace launch configs,
+# session caches, agent transcripts). None of this belongs in
+# source control — it embeds machine-specific paths and stale
+# notes. The whole directory is ignored to protect against any
+# future state files we don't yet know about.
+.claude/
+.cursor/
+**/.aider*
+**/.continue/
+
+# ── Relayer runtime state ────────────────────────────────
+# stats.json + similar are written by the relayer at runtime
+# (deposit/withdraw counters, fee earnings) and should never be
+# checked in. Wiped on each deploy.
+relayer/.stats.json
+**/*.stats.json

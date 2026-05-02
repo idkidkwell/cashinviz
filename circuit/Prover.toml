@@ -1,0 +1,12 @@
+# Example prover inputs (for testing)
+secret = "12345"
+nullifier = "67890"
+leaf_index = "0"
+merkle_path = ["0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0"]
+
+# Public inputs
+root = ""
+nullifier_hash = ""
+recipient = "0x1234567890123456789012345678901234567890"
+relayer = "0x0000000000000000000000000000000000000000"
+fee = "0"

@@ -1,0 +1,26 @@
+# Stub witness for `nargo prove` runs. The real values are produced
+# client-side from the user's input note + chosen output amounts; this
+# file just satisfies `nargo` for local sanity checks.
+
+# Private inputs
+in_secret = "0"
+in_nullifier = "0"
+in_token = "0"
+in_amount = "0"
+in_leaf_index = "0"
+in_merkle_path = [
+  "0", "0", "0", "0", "0", "0", "0", "0", "0", "0",
+  "0", "0", "0", "0", "0", "0", "0", "0", "0", "0",
+]
+out1_secret = "0"
+out1_nullifier = "0"
+out1_amount = "0"
+out2_secret = "0"
+out2_nullifier = "0"
+out2_amount = "0"
+
+# Public inputs (will be filled in real proofs)
+root = "0"
+in_nullifier_hash = "0"
+out1_commitment = "0"
+out2_commitment = "0"
