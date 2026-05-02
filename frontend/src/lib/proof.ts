@@ -183,7 +183,10 @@ async function pedersenHashOf(values: bigint[]): Promise<string> {
   const { Barretenberg, Fr } = await import("@aztec/bb.js");
   const bb = await Barretenberg.new();
   const frs = values.map((v) => new Fr(v));
-  const out = await bb.pedersenHash(frs);
+  // bb.js's pedersenHash takes (inputs, hashIndex). Noir's
+  // `std::hash::pedersen_hash` with no explicit index uses
+  // generator 0, so we pass 0 here to match the circuit.
+  const out = await bb.pedersenHash(frs, 0);
   // bb.js hash output is a Fr; serialize as fixed 32-byte hex.
   const buf = out.toBuffer();
   return "0x" + Array.from(buf).map((b) => b.toString(16).padStart(2, "0")).join("");
