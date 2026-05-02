@@ -199,9 +199,10 @@ contract CrossAssetMixer {
     }
 
     // ── View helpers ─────────────────────────────────────
-    function getSupportedTokens() external view returns (address[] memory) {
-        // In production: maintain an enumerable set
-        // Placeholder: return empty
+    function getSupportedTokens() external pure returns (address[] memory) {
+        // In production: maintain an enumerable set + flip to `view`.
+        // Placeholder returns an empty array — pure is correct for
+        // a function that reads no state today.
         return new address[](0);
     }
 

@@ -324,7 +324,6 @@ contract ShieldedPoolTest is Test {
         bytes32 root = pool.getLastRoot();
 
         uint256 recipientBefore = recipient.balance;
-        uint256 ownerBefore = address(this).balance;
 
         pool.withdraw(
             "", root, keccak256("nh_eth"), recipient,
@@ -485,7 +484,7 @@ contract CrossChainBridgeTest is Test {
         );
     }
 
-    function test_connected_chains() public {
+    function test_connected_chains() public view {
         uint256[] memory chains = bridge.getConnectedChains();
         assertEq(chains.length, 2);
         assertEq(chains[0], 42161);

@@ -253,9 +253,12 @@ contract PrivateDeFiRouter {
         return abi.decode(result, (uint256));
     }
 
-    function _executeCustom(DeFiAction calldata action) internal returns (uint256) {
-        // Future extensibility — arbitrary protocol calls
-        // For now, revert
+    function _executeCustom(DeFiAction calldata) internal pure returns (uint256) {
+        // Future extensibility — arbitrary protocol calls.
+        // For now this branch reverts. Parameter name is dropped to
+        // silence solc's unused-parameter warning until a real
+        // implementation lands. `pure` because reverting is allowed
+        // from a pure context and this function reads no state.
         revert ActionFailed();
     }
 
