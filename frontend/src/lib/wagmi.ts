@@ -34,7 +34,17 @@ import {
 //    chain-metadata probes don't block the UI.
 // ────────────────────────────────────────────────────────────────────
 
-const walletConnectProjectId = process.env.NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID;
+// WalletConnect / Reown project ID. Despite the name, this is NOT a
+// secret — it's a public identifier the WalletConnect cloud uses to
+// attribute connection traffic to a project (the way Google Analytics
+// uses a property ID). Uniswap / Aave / Lido all hardcode theirs in
+// open-source frontends. Hardcoding ours here means a fresh clone of
+// this repo Just Works without an .env file. Forks who want their
+// connection metrics in their own Reown dashboard can override via
+// NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID at build time.
+const CASHINVIZ_WC_PROJECT_ID = "714dac64d9ad9183b836f85bceb3fdec";
+const walletConnectProjectId =
+  process.env.NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID || CASHINVIZ_WC_PROJECT_ID;
 const hasRealProjectId =
   !!walletConnectProjectId &&
   walletConnectProjectId !== "YOUR_PROJECT_ID" &&

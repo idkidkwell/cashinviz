@@ -108,6 +108,18 @@ frontend.
 The frontend will throw `MixerNotDeployedError` if a user tries to
 interact on a chain that's still `0x0000…0000`.
 
+### WalletConnect project ID
+
+The project's WalletConnect ID lives in `wagmi.ts` as the
+`CASHINVIZ_WC_PROJECT_ID` constant (currently
+`714dac64d9ad9183b836f85bceb3fdec`). It's not a secret — these IDs
+are public identifiers, similar to Google Analytics properties.
+
+To rotate (or to point a fork at its own Reown dashboard), set
+`NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID` in the deployment environment
+(Vercel / your host's env vars) — the env value takes precedence over
+the hardcoded fallback.
+
 ## 6. Wire the relayer
 
 ```bash
