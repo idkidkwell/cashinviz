@@ -32,10 +32,12 @@ jobs:
         run: forge --version
 
       # Foundry deps live under `contracts/lib/` and are gitignored
-      # rather than vendored as submodules. Re-install them on every
-      # CI run.
+      # rather than vendored as submodules. Re-install the only
+      # dependency we actually import (forge-std) on every CI run.
+      # `--no-commit` skips the auto-commit forge would otherwise try
+      # to make (which would fail in CI without a git identity).
       - name: forge install
-        run: forge install
+        run: forge install foundry-rs/forge-std --no-commit
 
       - name: Build
         run: forge build --sizes
