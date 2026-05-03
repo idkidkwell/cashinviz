@@ -75,19 +75,33 @@ The script:
 
 This is the second half of the 2-step transfer. The script left every
 pool with `pendingOwner = DEV_WALLET_EVM`; the dev wallet must
-broadcast `acceptOwnership()` on each:
+broadcast `acceptOwnership()` on each. We ship a one-shot script
+that reads `deployments/<chainId>.json` and accepts on every pool
+in a single broadcast — idempotent, safe to re-run.
 
-```bash
-# From the dev-wallet key (NOT the deployer key):
-cast send --private-key $DEV_KEY $POOL_ADDR 'acceptOwnership()'
+```powershell
+# PowerShell, from the contracts/ directory.
+$env:DEV_KEY = "0x..."                                              # private key of 0xf815919520F422Ca76AAF0333f3C810CBD30BCDc
+$env:RPC_URL = "https://ethereum-sepolia-rpc.publicnode.com"        # or your preferred RPC
+
+cd contracts
+forge script script/AcceptOwnership.s.sol:AcceptOwnershipScript `
+    --rpc-url $env:RPC_URL --broadcast
 ```
 
-Use a multicall contract (multicall3 is on every chain at
-`0xcA11bde05977b3631167028862bE2a173976CA11`) to batch all
-acceptOwnership calls into one tx if you have many pools.
+The script will:
 
-Verify ownership: `cast call $POOL 'owner()(address)'` should return
-`DEV_WALLET_EVM`.
+1. Verify `$DEV_KEY` derives to `DEV_WALLET_EVM` (early-fail if you've
+   pasted the wrong key).
+2. Read every pool address from the deployment artifact.
+3. Skip pools already owned by the dev wallet (idempotent).
+4. Call `acceptOwnership()` on the rest, in one broadcast.
+
+Verify after: `cast call $POOL 'owner()(address)' --rpc-url $RPC_URL`
+should return `0xf81…BCDc` for every contract.
+
+The dev wallet needs a small Sepolia balance (~0.005 ETH) to cover
+the 8 acceptOwnership transactions.
 
 ## 4. Wire the transfer verifier
 
