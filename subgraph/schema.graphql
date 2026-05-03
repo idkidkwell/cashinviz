@@ -1,0 +1,125 @@
+# ─── Cashinviz subgraph schema ────────────────────────────────
+# Indexes deposits, withdrawals, and shielded transfers across
+# every deployed pool so the frontend can show real anonymity-set
+# numbers (and historical activity) without spamming RPCs.
+#
+# Deploy with The Graph CLI:
+#   graph init --product hosted-service idkidkwell/cashinviz
+#   graph deploy --product hosted-service idkidkwell/cashinviz
+#
+# Source addresses come from contracts/deployments/<chainId>.json.
+# Network mapping (Sepolia first, mainnet after audit) lives in
+# subgraph.yaml — to be filled in once we register the subgraph.
+
+# A deposit pool — one of the fixed-denomination ETH or ERC-20
+# Mixer contracts, OR the unified ShieldedPool, OR the YieldPool.
+# Distinguished by `kind`.
+type Pool @entity(immutable: true) {
+  id: Bytes!                      # the pool's contract address
+  kind: PoolKind!
+  chainId: BigInt!
+  token: Bytes                    # null for native-ETH pools
+  denomination: BigInt            # null for variable-amount pools (ShieldedPool)
+  createdAt: BigInt!
+  deposits: [Deposit!]! @derivedFrom(field: "pool")
+  withdrawals: [Withdrawal!]! @derivedFrom(field: "pool")
+  transfers: [ShieldedTransfer!]! @derivedFrom(field: "pool")
+}
+
+enum PoolKind {
+  ETH_MIXER       # fixed-denomination ETH pool (Mixer.sol)
+  ERC20_MIXER     # fixed-denomination ERC-20 pool (ERC20Mixer.sol)
+  SHIELDED_POOL   # unified multi-asset variable-amount pool
+  YIELD_POOL      # Aave-backed yield-bearing pool
+}
+
+# A single deposit. The commitment is the only on-chain trace tying
+# back to the depositor; we index it for completeness but a
+# subgraph cannot link it to the depositor's address (that's the
+# whole point of the protocol).
+type Deposit @entity(immutable: true) {
+  id: Bytes!                      # tx hash + log index
+  pool: Pool!
+  commitment: Bytes!              # Pedersen(secret, nullifier, token, amount)
+  leafIndex: BigInt!
+  token: Bytes                    # null for native ETH
+  amount: BigInt!
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  txHash: Bytes!
+}
+
+# A withdrawal. The nullifierHash is the same value submitted by the
+# user and stored in the contract's nullifierHashes mapping; observers
+# learn it but can't link it back to a specific deposit.
+type Withdrawal @entity(immutable: true) {
+  id: Bytes!                      # tx hash + log index
+  pool: Pool!
+  recipient: Bytes!
+  nullifierHash: Bytes!
+  token: Bytes                    # null for native ETH
+  amount: BigInt!                 # gross amount (before protocol + relayer fees)
+  relayer: Bytes
+  relayerFee: BigInt!
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  txHash: Bytes!
+}
+
+# Shielded transfer — funds move INSIDE the pool. One input note is
+# nullified; two output notes are created. Critically, neither the
+# sender's nor the receiver's address is on-chain, just commitments
+# and a nullifier hash.
+type ShieldedTransfer @entity(immutable: true) {
+  id: Bytes!                      # tx hash + log index
+  pool: Pool!
+  inputNullifier: Bytes!
+  outputCommitment1: Bytes!
+  outputCommitment2: Bytes!
+  leafIndex1: BigInt!
+  leafIndex2: BigInt!
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  txHash: Bytes!
+}
+
+# Cross-chain root sync — when a CrossChainBridge accepts a Merkle
+# root from a counterpart chain. The frontend uses this to know
+# which root the user can prove against on the destination chain.
+type ForeignRoot @entity(immutable: true) {
+  id: Bytes!                      # bridge address + sourceChain + root
+  bridge: Bytes!                  # CrossChainBridge contract address
+  sourceChain: BigInt!
+  root: Bytes!
+  syncedAt: BigInt!
+  txHash: Bytes!
+}
+
+# Cross-chain withdrawal — funds withdrawn on the destination chain
+# against a deposit made on `sourceChain`.
+type CrossChainWithdrawal @entity(immutable: true) {
+  id: Bytes!                      # tx hash + log index
+  bridge: Bytes!
+  sourceChain: BigInt!
+  recipient: Bytes!
+  nullifierHash: Bytes!
+  token: Bytes                    # null for native ETH
+  amount: BigInt!
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  txHash: Bytes!
+}
+
+# Aggregate stats — kept separately so the frontend can render a
+# global dashboard without paginating through every deposit. There's
+# only ever one PoolStats per pool address, keyed by the address.
+type PoolStats @entity {
+  id: Bytes!                      # pool contract address
+  pool: Pool!
+  depositCount: BigInt!
+  withdrawalCount: BigInt!
+  shieldedTransferCount: BigInt!
+  totalValueLocked: BigInt!       # current pool balance in token (or wei for ETH)
+  anonymitySetSize: BigInt!       # = depositCount - withdrawalCount (approx)
+  lastUpdated: BigInt!
+}

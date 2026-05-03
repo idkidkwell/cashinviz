@@ -1,0 +1,79 @@
+# Dependabot keeps dependencies fresh + flags security advisories
+# automatically. Three ecosystems are tracked: GitHub Actions
+# (workflow YAML), npm (frontend + relayer), and Cargo (Solana
+# program when it lands). Foundry / Noir don't have Dependabot
+# support yet — those bumps stay manual.
+
+version: 2
+updates:
+  # ── GitHub Actions ───────────────────────────────────────────
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 5
+    labels:
+      - "dependencies"
+      - "ci"
+    commit-message:
+      prefix: "ci"
+
+  # ── Frontend (Next.js) ───────────────────────────────────────
+  - package-ecosystem: "npm"
+    directory: "/frontend"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 10
+    labels:
+      - "dependencies"
+      - "frontend"
+    commit-message:
+      prefix: "frontend"
+    # Group routine bumps so we don't get spammed; security
+    # advisories still get their own PR per-package.
+    groups:
+      next-stack:
+        patterns:
+          - "next"
+          - "react"
+          - "react-dom"
+          - "@tanstack/*"
+      wallet-stack:
+        patterns:
+          - "wagmi"
+          - "viem"
+          - "@rainbow-me/*"
+      types:
+        patterns:
+          - "@types/*"
+
+  # ── Relayer (Express + viem) ─────────────────────────────────
+  - package-ecosystem: "npm"
+    directory: "/relayer"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 10
+    labels:
+      - "dependencies"
+      - "relayer"
+    commit-message:
+      prefix: "relayer"
+    groups:
+      types:
+        patterns:
+          - "@types/*"
+
+  # ── Solana program (Anchor) ──────────────────────────────────
+  # Activated once anchor-cli + cargo land. Today the program is
+  # checked manually via `cargo check`; once we have a Cargo.lock
+  # in the repo Dependabot picks it up automatically.
+  - package-ecosystem: "cargo"
+    directory: "/solana"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 5
+    labels:
+      - "dependencies"
+      - "solana"
+    commit-message:
+      prefix: "solana"

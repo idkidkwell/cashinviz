@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: 🔒 Security vulnerability
+    url: https://github.com/idkidkwell/cashinviz/blob/main/SECURITY.md
+    about: Read SECURITY.md and email security@cashinviz.com instead of opening a public issue.
+  - name: ❓ Question / discussion
+    url: https://github.com/idkidkwell/cashinviz/discussions
+    about: Use Discussions for open-ended questions. Issues are for actionable bugs and features.

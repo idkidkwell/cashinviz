@@ -154,10 +154,32 @@ export const config = createConfig({
 // to send a transaction — it throws instead of silently sending funds
 // to address(0) (which would burn them irrecoverably).
 export const MIXER_FACTORY_ADDRESSES: Record<number, `0x${string}`> = {
-  // Sepolia testnet (deploy here first)
-  11155111: "0x0000000000000000000000000000000000000000",
-  // Mainnet
+  // Sepolia testnet — first live deploy of Cashinviz, 2026-04
+  // Tx batch: see contracts/deployments/11155111.json
+  11155111: "0x61D24047882cED4C022fFf1725A3B325aDdD186f",
+  // Mainnet — pending audit
   1: "0x0000000000000000000000000000000000000000",
+};
+
+// Other deployed contracts on each chain. Read directly when the
+// frontend needs to talk to a specific pool (ShieldedPool for the
+// shielded-transfer flow, YieldPool for the yield page, etc.).
+// Source of truth: contracts/deployments/<chainId>.json.
+export const DEPLOYED_CONTRACTS: Record<
+  number,
+  {
+    verifier: `0x${string}`;
+    shieldedPool: `0x${string}`;
+    yieldPool: `0x${string}`;
+    crossChainBridge: `0x${string}`;
+  }
+> = {
+  11155111: {
+    verifier: "0x1Ba838af0f4539aC11b5c4098Bf40AE474046B4F",
+    shieldedPool: "0x1bBd9937A470b0Ae5aab7Acd3E57163360c4ce44",
+    yieldPool: "0xE8bBa4dC808d4cf7f93AB57efa1a2a6025A869Db",
+    crossChainBridge: "0x5C7132eB1b9EC4a1D9295f646011C38727B1Db71",
+  },
 };
 
 const ZERO_ADDRESS = "0x0000000000000000000000000000000000000000";

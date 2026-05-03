@@ -1,5 +1,14 @@
 # Cashinviz
 
+[![CI](https://github.com/idkidkwell/cashinviz/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/idkidkwell/cashinviz/actions/workflows/ci.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![Sepolia](https://img.shields.io/badge/Sepolia-deployed-success)](contracts/deployments/11155111.json)
+[![Mainnet](https://img.shields.io/badge/Mainnet-pending%20audit-orange)](#production-status)
+[![Foundry](https://img.shields.io/badge/Foundry-nightly-red)](https://book.getfoundry.sh/)
+[![Noir](https://img.shields.io/badge/Noir-1.0.0--beta.20-blueviolet)](https://noir-lang.org/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.x-3178C6)](https://www.typescriptlang.org/)
+[![Forge tests](https://img.shields.io/badge/forge%20tests-66%2F66-success)](contracts/test)
+
 **The privacy layer for crypto.** Non-custodial mixer that breaks the
 on-chain link between deposits and withdrawals using zero-knowledge
 proofs. No accounts. No logs. The secret that controls funds is
@@ -113,7 +122,7 @@ section in `SECURITY.md` and the audit-stance disclaimer above.
 
 | Component | State |
 |---|---|
-| EVM core (Mixer, ERC20Mixer, ShieldedPool, YieldPool, CrossChainBridge) | Code-complete + 42 tests passing. Awaiting Pedersen / Poseidon2 alignment between EVM tree and Noir circuit. |
+| EVM core (Mixer, ERC20Mixer, ShieldedPool, YieldPool, CrossChainBridge) | **Live on Sepolia** ([deployments/11155111.json](contracts/deployments/11155111.json)). Code-complete + 66 forge tests passing. Awaiting Pedersen / Poseidon2 alignment between EVM tree and Noir circuit. |
 | EVM premium-feature contracts | Killswitch-paused. Need their respective ZK circuits before un-pausing. |
 | Solana program | Code-complete with `paused` killswitch + `fee_recipient`. Real Groth16 verifier (light-protocol) and Wormhole publish are TODO. |
 | Withdraw Noir circuit | Complete, 4 tests pass. Uses Pedersen. |

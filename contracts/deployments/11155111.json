@@ -1,0 +1,25 @@
+{
+  "chainId": 11155111,
+  "crossChainBridge": "0x5C7132eB1b9EC4a1D9295f646011C38727B1Db71",
+  "deployedAt": 1777750044,
+  "deployer": "0x24Bad0b2512619832571c0e7e53bb7FE4688548a",
+  "ethPools": {
+    "0.1": "0xF0837BcC73d00d5A752A40D33f64ee06432d6451",
+    "1": "0x853D1d145C28776AFa5D9dE1B61Dced029d9FF70",
+    "10": "0x74B33e9C9878Cb3A6b20cb80D56cAfFEBB4C7f96",
+    "100": "0xcd8389b9510083bd52aC42F20Ff1e77b3Ac13fd3"
+  },
+  "factory": "0x61D24047882cED4C022fFf1725A3B325aDdD186f",
+  "shieldedPool": "0x1bBd9937A470b0Ae5aab7Acd3E57163360c4ce44",
+  "tokenAddresses": [
+    "0x1c7D4B196Cb0C7B01d743Fbc6116a902379C7238"
+  ],
+  "tokenDenominations": [
+    100000000
+  ],
+  "tokenPools": [
+    "0x1740EED185d422725FB564BC402cf8764f8C37c4"
+  ],
+  "verifier": "0x1Ba838af0f4539aC11b5c4098Bf40AE474046B4F",
+  "yieldPool": "0xE8bBa4dC808d4cf7f93AB57efa1a2a6025A869Db"
+}

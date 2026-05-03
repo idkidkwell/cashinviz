@@ -91,12 +91,30 @@ Verify ownership: `cast call $POOL 'owner()(address)'` should return
 
 ## 4. Wire the transfer verifier
 
-Once the transfer Noir circuit is compiled and its verifier deployed:
+The shielded-transfer Solidity verifier is pre-generated and committed
+at `contracts/verifiers/TransferVerifier.sol` (~101KB, ~28KB runtime —
+expected for a Noir-generated verifier). It lives outside `contracts/src/`
+because it shares library names (`HonkVerificationKey`, `Errors`,
+`FrLib`, etc.) with the withdraw verifier in `contracts/src/Verifier.sol`,
+which would cause a Foundry compile clash if both were in the default
+build path.
+
+Deploy it standalone, then wire its address into `ShieldedPool`:
 
 ```bash
+# Deploy from the verifiers/ subdir as an isolated build
+forge create contracts/verifiers/TransferVerifier.sol:HonkVerifier \
+    --rpc-url $RPC_URL --private-key $DEPLOYER_KEY
+
+# Capture the address it printed, then:
 cast send --private-key $DEV_KEY $SHIELDED_POOL \
     'setTransferVerifier(address)' $TRANSFER_VERIFIER
 ```
+
+Until this step completes, `ShieldedPool.shieldedTransfer()` runs in
+stub mode (the same `transferVerifier == address(0) → return true`
+fallback that withdraw used to have). Don't open shielded-transfer in
+the frontend before this is wired.
 
 ## 5. Update the frontend
 
