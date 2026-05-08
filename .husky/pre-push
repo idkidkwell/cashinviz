@@ -1,0 +1,22 @@
+#!/usr/bin/env sh
+# Pre-push gate. Runs the heavier test suites that are too slow for
+# every commit. Mirrors the CI workflow at .github/workflows/ci.yml
+# so a green pre-push means a green PR (modulo network flakes).
+#
+# Skip this gate with `git push --no-verify` if you really need to
+# push WIP — but expect CI to fail.
+set -e
+
+echo "==> forge test"
+(cd contracts && forge test)
+
+echo "==> frontend typecheck"
+(cd frontend && npx tsc --noEmit -p .)
+
+echo "==> relayer typecheck + tests"
+(cd relayer && npx tsc --noEmit -p . && npm test)
+
+# nargo / cargo are optional locally — CI covers them. Uncomment
+# if you want belt + braces:
+# (cd circuit && nargo test --silence-warnings)
+# (cd circuit_transfer && nargo test --silence-warnings)

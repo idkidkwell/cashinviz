@@ -49,7 +49,21 @@ The following are documented in code as `🚨 PRODUCTION-BLOCKER` /
 `⚠️ NOT PRODUCTION READY` rather than fixed silently. They should not
 be reported as new findings.
 
-1. **Hash mismatch between EVM tree and Noir circuit.** The
+1. **Verifier exceeds EIP-170 contract-size limit (deploy blocker).**
+   `contracts/src/Verifier.sol` is the Solidity verifier produced by
+   Noir's Barretenberg backend (`bb write_solidity_verifier -t evm`).
+   Its runtime bytecode is **27,750 bytes**, which exceeds the
+   **24,576-byte hard cap** that EIP-170 enforces on every Ethereum
+   L1 + most L2s. The contract compiles, simulates, and deploys to a
+   local Anvil fork (no EIP-170 enforcement on Anvil), but cannot be
+   broadcast to Sepolia or mainnet — the chain rejects the CREATE
+   opcode result. Two paths to fix:
+     - **Migrate to Groth16** — verifier shrinks to ~3–5 KB, well
+       under the cap. Requires a per-circuit trusted-setup ceremony
+       (multi-party for production). Currently in progress.
+     - **Split UltraHonk into proxy + libraries via `delegatecall`** —
+       keeps current Noir tooling but adds custom storage/ABI plumbing.
+2. **Hash mismatch between EVM tree and Noir circuit.** The
    `IncrementalMerkleTree` uses keccak256 as a placeholder; the Noir
    circuit uses `pedersen_hash`. Real ZK withdrawals will not pass
    `isKnownRoot()` until both sides agree on a hash. See

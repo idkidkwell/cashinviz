@@ -57,7 +57,7 @@ const securityHeaders = [
       //
       // Do NOT broaden this to a blanket `https:` — that would defeat
       // the whole point of the CSP for an XSS-style exfil.
-      "connect-src 'self' https://rpc.mevblocker.io https://*.publicnode.com https://*.lava.build https://*.flashbots.net https://eth.llamarpc.com https://*.walletconnect.com https://*.walletconnect.org wss://*.walletconnect.com wss://*.walletconnect.org",
+      "connect-src 'self' https://rpc.mevblocker.io https://*.publicnode.com https://*.lava.build https://*.flashbots.net https://eth.llamarpc.com https://*.walletconnect.com https://*.walletconnect.org wss://*.walletconnect.com wss://*.walletconnect.org https://public.chainalysis.com",
       "worker-src 'self' blob:",
       "frame-src 'self' https://verify.walletconnect.com https://verify.walletconnect.org",
       "frame-ancestors 'none'",

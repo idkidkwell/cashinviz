@@ -1,0 +1,41 @@
+{
+  "name": "cashinviz-monorepo",
+  "version": "0.1.0",
+  "private": true,
+  "description": "The privacy layer for crypto. Workspace root for the Cashinviz monorepo.",
+  "license": "MIT",
+  "homepage": "https://github.com/idkidkwell/cashinviz#readme",
+  "bugs": "https://github.com/idkidkwell/cashinviz/issues",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/idkidkwell/cashinviz.git"
+  },
+  "workspaces": [
+    "frontend",
+    "relayer",
+    "packages/*"
+  ],
+  "scripts": {
+    "prepare": "husky",
+    "test:contracts": "cd contracts && forge test",
+    "test:relayer": "cd relayer && npm test",
+    "test:circuits": "cd circuit && nargo test && cd ../circuit_transfer && nargo test",
+    "test:all": "npm run test:contracts && npm run test:relayer && npm run test:circuits",
+    "typecheck:frontend": "cd frontend && npx tsc --noEmit -p .",
+    "typecheck:relayer": "cd relayer && npx tsc --noEmit -p .",
+    "typecheck:all": "npm run typecheck:frontend && npm run typecheck:relayer"
+  },
+  "devDependencies": {
+    "husky": "^9.1.6",
+    "lint-staged": "^15.2.10"
+  },
+  "lint-staged": {
+    "frontend/**/*.{ts,tsx,js,jsx}": [
+      "cd frontend && npx tsc --noEmit -p ."
+    ],
+    "relayer/**/*.ts": [
+      "cd relayer && npx tsc --noEmit -p ."
+    ],
+    "**/*.{md,json,yml,yaml}": []
+  }
+}

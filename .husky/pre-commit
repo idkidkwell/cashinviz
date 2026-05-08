@@ -1,0 +1,6 @@
+#!/usr/bin/env sh
+# Pre-commit gate. Runs lint-staged so only changed files get
+# touched (full repo would take forever). Don't add `forge test` or
+# `nargo test` here — those belong on `pre-push`. Pre-commit is for
+# fast feedback, not full CI.
+npx lint-staged

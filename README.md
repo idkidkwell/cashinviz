@@ -2,7 +2,7 @@
 
 [![CI](https://github.com/idkidkwell/cashinviz/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/idkidkwell/cashinviz/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
-[![Sepolia](https://img.shields.io/badge/Sepolia-deployed-success)](contracts/deployments/11155111.json)
+[![Sepolia](https://img.shields.io/badge/Sepolia-blocked%20by%20EIP--170-red)](#production-status)
 [![Mainnet](https://img.shields.io/badge/Mainnet-pending%20audit-orange)](#production-status)
 [![Foundry](https://img.shields.io/badge/Foundry-nightly-red)](https://book.getfoundry.sh/)
 [![Noir](https://img.shields.io/badge/Noir-1.0.0--beta.20-blueviolet)](https://noir-lang.org/)
@@ -122,7 +122,7 @@ section in `SECURITY.md` and the audit-stance disclaimer above.
 
 | Component | State |
 |---|---|
-| EVM core (Mixer, ERC20Mixer, ShieldedPool, YieldPool, CrossChainBridge) | **Live on Sepolia** ([deployments/11155111.json](contracts/deployments/11155111.json)). Code-complete + 66 forge tests passing. Awaiting Pedersen / Poseidon2 alignment between EVM tree and Noir circuit. |
+| EVM core (Mixer, ERC20Mixer, ShieldedPool, YieldPool, CrossChainBridge) | Code-complete + 66 forge tests passing. **Cannot deploy to Sepolia or mainnet** until two production blockers clear: (1) the Noir-generated `HonkVerifier` is 27,750 B and exceeds EIP-170's 24,576 B contract-size limit; (2) the on-chain Merkle tree uses keccak as a placeholder while the Noir circuit uses Pedersen, so roots will not match. Both are tracked in `SECURITY.md`. |
 | EVM premium-feature contracts | Killswitch-paused. Need their respective ZK circuits before un-pausing. |
 | Solana program | Code-complete with `paused` killswitch + `fee_recipient`. Real Groth16 verifier (light-protocol) and Wormhole publish are TODO. |
 | Withdraw Noir circuit | Complete, 4 tests pass. Uses Pedersen. |

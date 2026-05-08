@@ -4,6 +4,7 @@ import { useState, useEffect, useRef, useCallback } from "react";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
 import { useAccount } from "wagmi";
 import { Hero } from "@/components/Hero";
+import { SanctionsBanner } from "@/components/SanctionsBanner";
 import { FeatureShowcase } from "@/components/FeatureShowcase";
 import { DepositPanel } from "@/components/DepositPanel";
 import { WithdrawPanel } from "@/components/WithdrawPanel";
@@ -526,6 +527,7 @@ export default function Home() {
   if (page === "hero") {
     return (
       <div className="min-h-screen bg-[var(--bg)]">
+        <SanctionsBanner />
         <Hero onEnterApp={() => setPage("app")} />
         <OnboardingTutorial isOpen={showTutorial} onClose={() => setShowTutorial(false)} />
       </div>
@@ -535,6 +537,7 @@ export default function Home() {
   /* ─── APP LAYOUT ───────────────────────────── */
   return (
     <AppErrorBoundary onReset={() => setPage("hero")}>
+    <SanctionsBanner />
     <div className="h-screen flex bg-[var(--bg)] overflow-hidden">
       {/* Ambient background effects */}
       <div className="ambient-mesh" />

@@ -1,0 +1,16 @@
+# Workspace root for the Cashinviz Solana program. Anchor pins the
+# member layout: each program lives in its own crate under programs/.
+# Adding a new program means adding it here AND to Anchor.toml.
+
+[workspace]
+resolver = "2"
+members = ["programs/*"]
+
+[profile.release]
+overflow-checks = true
+lto = "fat"
+codegen-units = 1
+[profile.release.build-override]
+opt-level = 3
+incremental = false
+codegen-units = 1

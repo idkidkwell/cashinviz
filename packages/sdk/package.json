@@ -1,0 +1,51 @@
+{
+  "name": "@cashinviz/sdk",
+  "version": "0.0.1",
+  "description": "TypeScript SDK for the Cashinviz privacy protocol. Deposit, withdraw, and shielded-transfer wrappers around viem + the in-browser ZK-proof pipeline.",
+  "license": "MIT",
+  "homepage": "https://github.com/idkidkwell/cashinviz/tree/main/packages/sdk#readme",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/idkidkwell/cashinviz.git",
+    "directory": "packages/sdk"
+  },
+  "keywords": [
+    "ethereum",
+    "privacy",
+    "zk",
+    "noir",
+    "mixer",
+    "cashinviz"
+  ],
+  "type": "module",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "build": "echo \"TODO: wire tsup once src/* is real code\" && exit 0",
+    "typecheck": "tsc --noEmit -p .",
+    "prepublishOnly": "npm run build"
+  },
+  "peerDependencies": {
+    "viem": "^2.17.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.14.0",
+    "typescript": "^5.5.0"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}

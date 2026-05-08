@@ -9,6 +9,10 @@ interface ITwoStep {
     function owner() external view returns (address);
 }
 
+interface IMixerFactory {
+    function ethMixers(uint256 denomination) external view returns (address);
+}
+
 /// @title AcceptOwnershipScript
 /// @notice Step 2 of the deploy workflow. Reads
 ///         `deployments/<chainId>.json` (written by Deploy.s.sol),
@@ -41,22 +45,30 @@ contract AcceptOwnershipScript is Script {
             string(abi.encodePacked("deployments/", vm.toString(chainId), ".json"))
         );
 
-        // Pull each address out of the JSON. parseJsonAddress reverts
-        // if the key is missing, which is what we want — better to
-        // fail loud than to silently skip a pool.
-        address[8] memory contracts;
-        contracts[0] = vm.parseJsonAddress(artifact, ".ethPools.0\\.1");
-        contracts[1] = vm.parseJsonAddress(artifact, ".ethPools.1");
-        contracts[2] = vm.parseJsonAddress(artifact, ".ethPools.10");
-        contracts[3] = vm.parseJsonAddress(artifact, ".ethPools.100");
+        // Read addresses that don't have dotted JSON keys directly.
+        // The ETH pools' JSON keys are "0.1", "1", "10", "100" —
+        // Foundry's JSON path parser doesn't handle dots inside keys
+        // cleanly, so we get those addresses from the factory at
+        // runtime instead (factory.ethMixers(denomination)).
+        address factoryAddr = vm.parseJsonAddress(artifact, ".factory");
+        IMixerFactory factory = IMixerFactory(factoryAddr);
+
+        // Build the address list. tokenPools is an array (works fine
+        // with parseJsonAddressArray); ETH pools come from the factory.
+        address[] memory tokenPools = vm.parseJsonAddressArray(artifact, ".tokenPools");
+        uint256 totalContracts = 4 /* eth pools */ + 3 /* shielded/yield/bridge */ + tokenPools.length;
+        address[] memory contracts = new address[](totalContracts);
+
+        contracts[0] = factory.ethMixers(0.1 ether);
+        contracts[1] = factory.ethMixers(1 ether);
+        contracts[2] = factory.ethMixers(10 ether);
+        contracts[3] = factory.ethMixers(100 ether);
         contracts[4] = vm.parseJsonAddress(artifact, ".shieldedPool");
         contracts[5] = vm.parseJsonAddress(artifact, ".yieldPool");
         contracts[6] = vm.parseJsonAddress(artifact, ".crossChainBridge");
-        // ERC-20 pools live in a parallel array. We only know the
-        // count from the deployments file; for now grab the first
-        // entry (Sepolia ships exactly one stablecoin pool: USDC).
-        address[] memory tokenPools = vm.parseJsonAddressArray(artifact, ".tokenPools");
-        contracts[7] = tokenPools.length > 0 ? tokenPools[0] : address(0);
+        for (uint256 i = 0; i < tokenPools.length; i++) {
+            contracts[7 + i] = tokenPools[i];
+        }
 
         console.log("=== Accepting ownership on chain", chainId, "===");
         console.log("Dev wallet:", devWallet);
@@ -64,7 +76,8 @@ contract AcceptOwnershipScript is Script {
 
         vm.startBroadcast(devKey);
 
-        for (uint256 i = 0; i < contracts.length; i++) {
+        uint256 contractCount = contracts.length;
+        for (uint256 i = 0; i < contractCount; i++) {
             address c = contracts[i];
             if (c == address(0)) {
                 continue; // YieldPool is address(0) on chains without Aave wiring
