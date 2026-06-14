@@ -15,7 +15,7 @@
     "express": "^4.19.2",
     "express-rate-limit": "^7.3.1",
     "helmet": "^7.1.0",
-    "socks-proxy-agent": "^8.0.5",
+    "socks-proxy-agent": "^10.1.0",
     "viem": "^2.17.0"
   },
   "devDependencies": {
