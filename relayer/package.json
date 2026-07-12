@@ -14,7 +14,7 @@
     "dotenv": "^16.4.5",
     "express": "^4.19.2",
     "express-rate-limit": "^7.3.1",
-    "helmet": "^7.1.0",
+    "helmet": "^8.3.0",
     "socks-proxy-agent": "^8.0.5",
     "viem": "^2.17.0"
   },
